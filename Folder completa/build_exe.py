@@ -15,6 +15,7 @@ PyInstaller.__main__.run([
     f"--distpath={os.path.join(script_dir, 'dist')}",
     f"--workpath={os.path.join(script_dir, 'build')}",
     f"--specpath={os.path.join(script_dir, 'build')}",
+    f"--add-data={script_dir}/*.png:.",
     "--hidden-import=pyautogui",
     "--hidden-import=pyperclip",
     "--hidden-import=pandas",
