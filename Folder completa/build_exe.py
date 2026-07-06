@@ -10,10 +10,10 @@ script_path = os.path.join(script_dir, "860 auto.py")
 PyInstaller.__main__.run([
     script_path,
     "--onefile",
-    "--windowed",
+    "--console",
     "--name=Rotina860",
     f"--distpath={os.path.join(script_dir, 'dist')}",
-    f"--buildpath={os.path.join(script_dir, 'build')}",
+    f"--workpath={os.path.join(script_dir, 'build')}",
     f"--specpath={os.path.join(script_dir, 'build')}",
     "--hidden-import=pyautogui",
     "--hidden-import=pyperclip",
