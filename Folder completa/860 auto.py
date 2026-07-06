@@ -410,9 +410,13 @@ try:
 
         print(f"\n✅ All done!")
         logger.info("✅ Rotina 860 completed successfully!")
+        print("\nPress any key to exit...")
+        input()
     else:
         print(f"  ✗ Unexpected state before step 6: {state}")
         logger.error(f"Unexpected state before step 6: {state}")
+        print("\nPress any key to exit...")
+        input()
         sys.exit(1)
 
 except Exception as e:
@@ -420,4 +424,6 @@ except Exception as e:
     logger.error(error_msg)
     print(f"\n❌ {error_msg}")
     print(f"\n📋 Log file saved to: {log_file}")
+    print("\nPress any key to exit...")
+    input()
     sys.exit(1)
