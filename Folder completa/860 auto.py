@@ -68,7 +68,7 @@ SQL_QUERIES = {
     "f5": "SELECT p.codprod, p.descricao, e.CODFILIAL, e.QTPENDENTE from pcprodut p inner join pcest e on (p.codprod = e.codprod) WHERE e.CODFILIAL=5",
     "f2": "SELECT p.codprod, p.descricao, e.CODFILIAL, e.QTPENDENTE from pcprodut p inner join pcest e on (p.codprod = e.codprod) WHERE e.CODFILIAL=2",
     "f1": "SELECT p.codprod, p.descricao, e.CODFILIAL, e.QTPENDENTE from pcprodut p inner join pcest e on (p.codprod = e.codprod) WHERE e.CODFILIAL=1",
-    "f":  None  # runs f5, f2, f1 in sequence then merges
+    "f":  "SELECT p.codprod, p.descricao, e.CODFILIAL, e.QTPENDENTE from pcprodut p inner join pcest e on (p.codprod = e.codprod) WHERE e.CODFILIAL IN (1,2,5)"
 }
 
 FILE_NAMES = {
@@ -264,13 +264,12 @@ def get_todays_file(prefix):
     return None
 
 if choice == "f":
-    run_sequence = []
-    for key in ["f5", "f2", "f1"]:
-        existing = get_todays_file(FILE_NAMES[key])
-        if existing:
-            print(f"  Skipping {key} — already exported today")
-        else:
-            run_sequence.append(key)
+    existing = get_todays_file(FILE_NAMES["f"])
+    if existing:
+        print(f"  Skipping f — already exported today")
+        run_sequence = []
+    else:
+        run_sequence = ["f"]
 else:
     run_sequence = [choice]
 

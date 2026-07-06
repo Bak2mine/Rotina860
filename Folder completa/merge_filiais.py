@@ -49,18 +49,12 @@ def run(SAVE_FOLDER):
         print(f"  Available sheets: {wb.sheetnames}")
         sys.exit(1)
 
-    print("Finding exported files...")
-    f5_file = get_latest_file(SAVE_FOLDER, "QTD PEDIDA_RESERVADA filial5")
-    f2_file = get_latest_file(SAVE_FOLDER, "QTD PEDIDA_RESERVADA filial2")
-    f1_file = get_latest_file(SAVE_FOLDER, "QTD PEDIDA_RESERVADA filial1")
+    print("Finding exported file...")
+    filiais_file = get_latest_file(SAVE_FOLDER, "TODAS FILIAIS")
 
-    print("Reading exported files...")
-    df_f5 = pd.read_excel(f5_file)
-    df_f2 = pd.read_excel(f2_file)
-    df_f1 = pd.read_excel(f1_file)
-
-    df_combined = pd.concat([df_f5, df_f2, df_f1], ignore_index=True)
-    print(f"  ✓ Combined {len(df_combined)} rows total")
+    print("Reading exported file...")
+    df_combined = pd.read_excel(filiais_file)
+    print(f"  ✓ Read {len(df_combined)} rows total")
 
     ws = wb[SHEET_NAME]
     print("Clearing previous data from Filial 1+2+5...")
