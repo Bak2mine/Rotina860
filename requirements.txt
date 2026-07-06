@@ -1,8 +1,0 @@
-pyautogui
-pyperclip
-opencv-python
-pillow
-pygetwindow
-pywin32
-pandas
-openpyxl
