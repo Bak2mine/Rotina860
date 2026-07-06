@@ -9,8 +9,26 @@ import pygetwindow as gw
 import win32gui # type: ignore
 import win32con # type: ignore
 import glob
+import logging
+import traceback
 
 #pip install -r requirements.txt
+
+# ============================================================
+# LOGGING SETUP
+# ============================================================
+log_dir = os.path.dirname(os.path.abspath(__file__))
+log_file = os.path.join(log_dir, f"rotina860_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # CONFIG
@@ -280,91 +298,126 @@ print(f"  run_sequence: {run_sequence}")
 # ============================================================
 # MAIN FLOW
 # ============================================================
-# Skip opening Winthor entirely if all files already exist
-if choice == "f" and not run_sequence:
-    print("All files already exported today, skipping to merge...")
-    import merge_filiais
-    merge_filiais.run(SAVE_FOLDER)
-    print("\n✅ All done!")
-    sys.exit(0)
+try:
+    logger.info("=" * 80)
+    logger.info("ROTINA 860 STARTED")
+    logger.info(f"Choice: {choice}")
+    logger.info(f"Run sequence: {run_sequence}")
+    logger.info("=" * 80)
 
-print(f"  run_sequence: {run_sequence}")
-
-screen_width, screen_height = pyautogui.size()
-
-time.sleep(5)
-state = detect_current_state()
-print(state)
-
-# STEP 1: Open Winthor
-if state == "unknown":
-    time.sleep(5)
-    print("Step 1: Opening Winthor...")
-    subprocess.Popen(["cmd", "/c", "start", "", WINTHOR_LNK], shell=True)
-    time.sleep(10)
-    state = detect_current_state()
-    print(state)
-
-# STEP 2: Click Conectar
-if state == "conectar":
-    print("Step 2: Clicking Conectar...")
-    find_and_click("btn_conectar.png", timeout=15)
-    time.sleep(10)
-    state = detect_current_state()
-    print(state)
-
-# STEP 3: Double click WinThor icon
-if state == "totvs_cloud":
-    print("Step 3: Double clicking WinThor icon...")
-    find_and_click(["icon_winthor.png", "winthor_azul.png"], timeout=15, double=True)
-    time.sleep(10)
-    state = detect_current_state()
-    print(state)
-
-# STEP 4: Type password and click Entrar
-if state == "login":
-    print("Step 4: Logging in...")
-    time.sleep(4)
-    pyperclip.copy(WINTHOR_PASSWORD)
-    pyautogui.hotkey("ctrl", "v")
-    time.sleep(0.3)
-    pyautogui.press("enter")
-    time.sleep(12)
-    state = detect_current_state()
-    print(state)
-
-# STEP 5: Open Rotina 860
-if state == "main_screen":
-    print("Step 5: Opening Rotina 860...")
-    pyperclip.copy("860")
-    time.sleep(2)
-    pyautogui.hotkey("ctrl", "v")
-    time.sleep(1)
-    pyautogui.press("enter")
-    time.sleep(5)
-    state = detect_current_state()
-    print(state)
-
-# STEPS 6-10: Run each query in sequence
-if state == "rotina_860":
-    for sql_key in run_sequence:
-        run_query_and_export(sql_key)
-
-    # If choice was "f", run the merge script automatically
-    if choice == "f":
-        print("\nMerging all filiais into master file...")
+    # Skip opening Winthor entirely if all files already exist
+    if choice == "f" and not run_sequence:
+        logger.info("All files already exported today, skipping to merge...")
+        print("All files already exported today, skipping to merge...")
         import merge_filiais
         merge_filiais.run(SAVE_FOLDER)
-    elif choice == "bp":
-        print("\nMerging Base Produtos into master file...")
-        import merge_filiais
-        merge_filiais.run_bp(SAVE_FOLDER)
-    elif choice == "0":
-        print("\nMerging Pedidos Compra into master file...")
-        import merge_filiais
-        merge_filiais.run_pedidos(SAVE_FOLDER)
+        logger.info("✅ All done!")
+        print("\n✅ All done!")
+        sys.exit(0)
 
-    print(f"\n✅ All done!")
-else:
-    print(f"  ✗ Unexpected state before step 6: {state}")
+    print(f"  run_sequence: {run_sequence}")
+    logger.info(f"run_sequence: {run_sequence}")
+
+    screen_width, screen_height = pyautogui.size()
+    logger.info(f"Screen size: {screen_width}x{screen_height}")
+
+    time.sleep(5)
+    state = detect_current_state()
+    logger.info(f"Initial state: {state}")
+    print(state)
+
+    # STEP 1: Open Winthor
+    if state == "unknown":
+        time.sleep(5)
+        print("Step 1: Opening Winthor...")
+        logger.info("Step 1: Opening Winthor...")
+        subprocess.Popen(["cmd", "/c", "start", "", WINTHOR_LNK], shell=True)
+        time.sleep(10)
+        state = detect_current_state()
+        print(state)
+        logger.info(f"State after opening Winthor: {state}")
+
+    # STEP 2: Click Conectar
+    if state == "conectar":
+        print("Step 2: Clicking Conectar...")
+        logger.info("Step 2: Clicking Conectar...")
+        find_and_click("btn_conectar.png", timeout=15)
+        time.sleep(10)
+        state = detect_current_state()
+        print(state)
+        logger.info(f"State after clicking Conectar: {state}")
+
+    # STEP 3: Double click WinThor icon
+    if state == "totvs_cloud":
+        print("Step 3: Double clicking WinThor icon...")
+        logger.info("Step 3: Double clicking WinThor icon...")
+        find_and_click(["icon_winthor.png", "winthor_azul.png"], timeout=15, double=True)
+        time.sleep(10)
+        state = detect_current_state()
+        print(state)
+        logger.info(f"State after clicking icon: {state}")
+
+    # STEP 4: Type password and click Entrar
+    if state == "login":
+        print("Step 4: Logging in...")
+        logger.info("Step 4: Logging in...")
+        time.sleep(4)
+        pyperclip.copy(WINTHOR_PASSWORD)
+        pyautogui.hotkey("ctrl", "v")
+        time.sleep(0.3)
+        pyautogui.press("enter")
+        time.sleep(12)
+        state = detect_current_state()
+        print(state)
+        logger.info(f"State after login: {state}")
+
+    # STEP 5: Open Rotina 860
+    if state == "main_screen":
+        print("Step 5: Opening Rotina 860...")
+        logger.info("Step 5: Opening Rotina 860...")
+        pyperclip.copy("860")
+        time.sleep(2)
+        pyautogui.hotkey("ctrl", "v")
+        time.sleep(1)
+        pyautogui.press("enter")
+        time.sleep(5)
+        state = detect_current_state()
+        print(state)
+        logger.info(f"State after opening Rotina 860: {state}")
+
+    # STEPS 6-10: Run each query in sequence
+    if state == "rotina_860":
+        for sql_key in run_sequence:
+            logger.info(f"Running query: {sql_key}")
+            run_query_and_export(sql_key)
+
+        # If choice was "f", run the merge script automatically
+        if choice == "f":
+            print("\nMerging all filiais into master file...")
+            logger.info("Merging all filiais into master file...")
+            import merge_filiais
+            merge_filiais.run(SAVE_FOLDER)
+        elif choice == "bp":
+            print("\nMerging Base Produtos into master file...")
+            logger.info("Merging Base Produtos into master file...")
+            import merge_filiais
+            merge_filiais.run_bp(SAVE_FOLDER)
+        elif choice == "0":
+            print("\nMerging Pedidos Compra into master file...")
+            logger.info("Merging Pedidos Compra into master file...")
+            import merge_filiais
+            merge_filiais.run_pedidos(SAVE_FOLDER)
+
+        print(f"\n✅ All done!")
+        logger.info("✅ Rotina 860 completed successfully!")
+    else:
+        print(f"  ✗ Unexpected state before step 6: {state}")
+        logger.error(f"Unexpected state before step 6: {state}")
+        sys.exit(1)
+
+except Exception as e:
+    error_msg = f"ERROR: {str(e)}\n{traceback.format_exc()}"
+    logger.error(error_msg)
+    print(f"\n❌ {error_msg}")
+    print(f"\n📋 Log file saved to: {log_file}")
     sys.exit(1)
