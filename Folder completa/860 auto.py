@@ -52,11 +52,15 @@ WINTHOR_PASSWORD = input("Senha: ").strip()
 
 # Save folder mirrors script location but on V: drive
 if getattr(sys, 'frozen', False):
-    IMAGES = os.path.dirname(sys.executable)
+    # Running as .exe - images are in temp folder with executable
+    IMAGES = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
+    # Use the original script location for file paths (not the temp folder)
+    script_path = r"C:\Users\andre\Desktop\Zeon\Folder completa"
 else:
+    # Running as script
     IMAGES = os.path.dirname(os.path.abspath(__file__))
+    script_path = IMAGES
 
-script_path = IMAGES
 path_without_drive = os.path.splitdrive(script_path)[1]
 SAVE_FOLDER = "V:" + path_without_drive
 
