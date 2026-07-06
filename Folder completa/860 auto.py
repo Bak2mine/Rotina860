@@ -50,13 +50,13 @@ CONFIDENCE = {
     "btn_run.png":       0.75,
     "rotina_txtbx.png":  0.7,
     "btn_entrar.png":    0.9,
-    "icon_winthor.png":  0.6,
+    "icon_winthor.png":  0.55,
     "btn_conectar.png":  0.7,
     "field_arquivo.png": 0.7,
     "field_senha.png":   0.5,
     "btn_save.png":      0.6,
     "btn_fechar.png":    0.6,
-    "winthor_azul.png": 0.6,
+    "winthor_azul.png": 0.55,
 }
 
 # ============================================================
@@ -107,21 +107,23 @@ def is_visible(image_name):
         return False
 
 def find_and_click(image_name, timeout=30, double=False):
-    confidence = CONFIDENCE.get(image_name, 0.7)
-    image_path = os.path.join(IMAGES, image_name)
+    images = image_name if isinstance(image_name, list) else [image_name]
     start = time.time()
     while time.time() - start < timeout:
-        try:
-            location = pyautogui.locateOnScreen(image_path, confidence=confidence)
-            if location:
-                if double:
-                    pyautogui.doubleClick(location)
-                else:
-                    pyautogui.click(location)
-                print(f"  ✓ Found and clicked: {image_name}")
-                return location
-        except pyautogui.ImageNotFoundException:
-            pass
+        for img in images:
+            confidence = CONFIDENCE.get(img, 0.7)
+            image_path = os.path.join(IMAGES, img)
+            try:
+                location = pyautogui.locateOnScreen(image_path, confidence=confidence)
+                if location:
+                    if double:
+                        pyautogui.doubleClick(location)
+                    else:
+                        pyautogui.click(location)
+                    print(f"  ✓ Found and clicked: {img}")
+                    return location
+            except pyautogui.ImageNotFoundException:
+                pass
         time.sleep(0.5)
     print(f"  ✗ Could not find: {image_name} after {timeout}s")
     sys.exit(1)
@@ -314,7 +316,7 @@ if state == "conectar":
 # STEP 3: Double click WinThor icon
 if state == "totvs_cloud":
     print("Step 3: Double clicking WinThor icon...")
-    find_and_click("icon_winthor.png", timeout=15, double=True)
+    find_and_click(["icon_winthor.png", "winthor_azul.png"], timeout=15, double=True)
     time.sleep(10)
     state = detect_current_state()
     print(state)
