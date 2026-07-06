@@ -1,0 +1,27 @@
+# Exported data files
+*.xls
+*.xlsx
+*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+*.spec
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Temporary files
+~$*
+*.tmp
+
+# Folders
+1130/
+Folder completa/__pycache__/
+Folder completa/*.xls
+Folder completa/*.xlsx
