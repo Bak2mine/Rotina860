@@ -102,17 +102,18 @@ SAVE_FOLDER = "C:" + path_without_drive  # Use C: directly instead of V:
 # CONFIDENCE LEVELS PER IMAGE
 # ============================================================
 CONFIDENCE = {
-    "btn_exportar.png":  0.7,
-    "btn_run.png":       0.75,
-    "rotina_txtbx.png":  0.7,
-    "btn_entrar.png":    0.9,
-    "icon_winthor.png":  0.55,
-    "btn_conectar.png":  0.7,
-    "field_arquivo.png": 0.7,
-    "field_senha.png":   0.5,
-    "btn_save.png":      0.6,
-    "btn_fechar.png":    0.6,
-    "winthor_azul.png": 0.55,
+    "btn_exportar.png":    0.7,
+    "btn_run.png":         0.75,
+    "rotina_txtbx.png":    0.7,
+    "btn_entrar.png":      0.9,
+    "icon_winthor.png":    0.55,
+    "btn_conectar.png":    0.7,
+    "winthor_connect.png": 0.7,
+    "field_arquivo.png":   0.7,
+    "field_senha.png":     0.5,
+    "btn_save.png":        0.6,
+    "btn_fechar.png":      0.6,
+    "winthor_azul.png":    0.55,
 }
 
 # ============================================================
@@ -217,6 +218,7 @@ def detect_current_state():
         ("rotina_txtbx.png", "main_screen"),
         ("btn_entrar.png",   "login"),
         (["icon_winthor.png", "winthor_azul.png"], "totvs_cloud"),
+        ("winthor_connect.png", "winthor_connect"),
         ("btn_conectar.png", "conectar"),
     ]
     for image, state in checks:
@@ -391,10 +393,18 @@ try:
             time.sleep(10)
             continue
 
-        # STEP 2: Click Conectar
+        # STEP 2: Click Winthor Connect (if running from exe instead of shortcut)
+        if state == "winthor_connect":
+            print("Step 2: Clicking Winthor Connect...")
+            logger.info("Step 2: Clicking Winthor Connect...")
+            find_and_click("winthor_connect.png", timeout=15)
+            time.sleep(10)
+            continue
+
+        # STEP 2.5: Click Conectar
         if state == "conectar":
-            print("Step 2: Clicking Conectar...")
-            logger.info("Step 2: Clicking Conectar...")
+            print("Step 2.5: Clicking Conectar...")
+            logger.info("Step 2.5: Clicking Conectar...")
             find_and_click("btn_conectar.png", timeout=15)
             time.sleep(10)
             continue
