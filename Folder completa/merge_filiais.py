@@ -42,33 +42,53 @@ def get_master_file(SAVE_FOLDER):
 
 def get_latest_file(SAVE_FOLDER, prefix):
     today = datetime.datetime.now().strftime("%Y%m%d")
-    logger.info(f"Looking for {prefix} file from today ({today}) in: {SAVE_FOLDER}")
+    logger.info(f"Looking for {prefix} file from today ({today})")
+    logger.info(f"SAVE_FOLDER: {SAVE_FOLDER}")
 
-    # Try original path first
-    pattern = os.path.join(SAVE_FOLDER, f"{prefix}_{today}_*.xls")
-    logger.info(f"Pattern: {pattern}")
-    files = glob.glob(pattern)
-    if files:
-        latest = max(files, key=os.path.getmtime)
-        logger.info(f"Found: {latest}")
-        print(f"  ✓ Found: {os.path.basename(latest)}")
-        return latest
+    # List of possible folders to search
+    search_folders = [
+        SAVE_FOLDER,
+        r"C:\Users\andre\Desktop\Zeon\Folder completa",
+    ]
 
-    # Try alternate drives
+    # Add V: and C: variants
     path_only = os.path.splitdrive(SAVE_FOLDER)[1]
     for drive in ["V:", "C:"]:
         folder = drive + path_only
+        search_folders.append(folder)
+
+    # Search all possible folders
+    for folder in search_folders:
+        if not os.path.exists(folder):
+            logger.info(f"Folder does not exist: {folder}")
+            continue
+
+        logger.info(f"Searching in: {folder}")
         pattern = os.path.join(folder, f"{prefix}_{today}_*.xls")
-        logger.info(f"Trying: {pattern}")
+        logger.info(f"Pattern: {pattern}")
         files = glob.glob(pattern)
+
         if files:
             latest = max(files, key=os.path.getmtime)
             logger.info(f"Found: {latest}")
             print(f"  ✓ Found: {os.path.basename(latest)}")
             return latest
 
+    # If not found with today's date, show what files exist
     logger.error(f"No file found for {prefix} on {today}")
     print(f"  ✗ No file found for {prefix}")
+
+    # Try to show what files do exist
+    for folder in search_folders:
+        if os.path.exists(folder):
+            logger.info(f"Files in {folder}:")
+            try:
+                files = glob.glob(os.path.join(folder, f"{prefix}_*.xls"))
+                for f in files:
+                    logger.info(f"  - {f}")
+            except:
+                pass
+
     sys.exit(1)
 
 # ============================================================
