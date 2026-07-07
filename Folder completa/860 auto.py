@@ -400,19 +400,19 @@ try:
             if choice == "f":
                 print("\nMerging all filiais into master file...")
                 logger.info("Merging all filiais into master file...")
-                merge_filiais.run(SAVE_FOLDER)
+                merge_filiais.run(SAVE_FOLDER, "TODAS FILIAIS")
             elif choice == "f1":
                 print("\nMerging Filial 1 into master file...")
                 logger.info("Merging Filial 1 into master file...")
-                merge_filiais.run(SAVE_FOLDER)
+                merge_filiais.run(SAVE_FOLDER, "QTD PEDIDA_RESERVADA filial1")
             elif choice == "f2":
                 print("\nMerging Filial 2 into master file...")
                 logger.info("Merging Filial 2 into master file...")
-                merge_filiais.run(SAVE_FOLDER)
+                merge_filiais.run(SAVE_FOLDER, "QTD PEDIDA_RESERVADA filial2")
             elif choice == "f5":
                 print("\nMerging Filial 5 into master file...")
                 logger.info("Merging Filial 5 into master file...")
-                merge_filiais.run(SAVE_FOLDER)
+                merge_filiais.run(SAVE_FOLDER, "QTD PEDIDA_RESERVADA filial5")
             elif choice == "bp":
                 print("\nMerging Base Produtos into master file...")
                 logger.info("Merging Base Produtos into master file...")

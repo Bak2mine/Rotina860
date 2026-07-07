@@ -70,11 +70,13 @@ def get_latest_file(SAVE_FOLDER, prefix):
     sys.exit(1)
 
 # ============================================================
-# RUN F — Filiais 1+2+5, Qtd. Pedida+Reservada
+# RUN F — Filiais 1+2+5, Qtd. Pedida+Reservada (combined or individual)
 # ============================================================
-def run(SAVE_FOLDER):
+def run(SAVE_FOLDER, filial_prefix="TODAS FILIAIS"):
+    """Merge filial data. filial_prefix can be 'TODAS FILIAIS', 'QTD PEDIDA_RESERVADA filial1', etc."""
     try:
         logger.info(f"Starting merge for SAVE_FOLDER: {SAVE_FOLDER}")
+        logger.info(f"Looking for prefix: {filial_prefix}")
         print(f"\n[MERGE] Starting merge process...")
 
         MASTER_FILE = get_master_file(SAVE_FOLDER)
@@ -91,9 +93,9 @@ def run(SAVE_FOLDER):
             print(f"  Available sheets: {wb.sheetnames}")
             sys.exit(1)
 
-        print("Finding exported file...")
-        logger.info("Looking for TODAS FILIAIS export...")
-        filiais_file = get_latest_file(SAVE_FOLDER, "TODAS FILIAIS")
+        print(f"Finding exported file with prefix: {filial_prefix}...")
+        logger.info(f"Looking for export with prefix: {filial_prefix}")
+        filiais_file = get_latest_file(SAVE_FOLDER, filial_prefix)
         logger.info(f"Found file: {filiais_file}")
 
         print("Reading exported file...")
