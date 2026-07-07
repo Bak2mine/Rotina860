@@ -11,6 +11,7 @@ import win32con # type: ignore
 import glob
 import logging
 import traceback
+import configparser
 
 #pip install -r requirements.txt
 
@@ -43,8 +44,30 @@ else:
     print(f"  ✗ AppController.exe not found at: {WINTHOR_LNK}")
     sys.exit(1)
 
-# Password input at startup
-WINTHOR_PASSWORD = input("Senha: ").strip()
+# Load credentials from config file
+script_dir = os.path.dirname(os.path.abspath(__file__)) if not getattr(sys, 'frozen', False) else os.path.dirname(sys.executable)
+config_path = os.path.join(script_dir, "config.ini")
+
+if not os.path.exists(config_path):
+    print(f"\n  ✗ config.ini not found at: {config_path}")
+    print(f"  Copy config.example.ini to config.ini and fill in your credentials")
+    sys.exit(1)
+
+config = configparser.ConfigParser()
+config.read(config_path)
+
+try:
+    WINTHOR_USERNAME = config.get("winthor", "username")
+    WINTHOR_PASSWORD = config.get("winthor", "password")
+
+    if not WINTHOR_USERNAME or not WINTHOR_PASSWORD:
+        print("\n  ✗ Username or password not set in config.ini")
+        sys.exit(1)
+
+    print(f"  ✓ Credentials loaded for user: {WINTHOR_USERNAME}")
+except configparser.Error as e:
+    print(f"\n  ✗ Error reading config.ini: {e}")
+    sys.exit(1)
 
 # Save folder mirrors script location but on V: drive
 if getattr(sys, 'frozen', False):

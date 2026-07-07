@@ -25,3 +25,4 @@ dist/
 Folder completa/__pycache__/
 Folder completa/*.xls
 Folder completa/*.xlsx
+Folder completa/config.ini
