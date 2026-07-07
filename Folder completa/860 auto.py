@@ -252,6 +252,7 @@ def run_query_and_export(sql_key):
     # STEP 9 + 10: Type filename and export
     if state == "export_dialog":
         print("Step 9: Setting filename...")
+        logger.info("Step 9: Setting filename...")
         pyautogui.press("tab")
         time.sleep(2)
         pyautogui.press("delete")
@@ -260,17 +261,21 @@ def run_query_and_export(sql_key):
         time.sleep(5)
 
         print("Step 10: Exporting...")
+        logger.info("Step 10: Exporting...")
         find_and_click("btn_exportar.png", timeout=10)
         time.sleep(4)
-        print(f"  ✓ Exported: {filename}")
+        print(f"  [SUCCESS] Exported: {filename}")
+        logger.info(f"Successfully exported: {filename}")
 
         # Close export dialog
         print("Closing export dialog...")
+        logger.info("Closing export dialog...")
         find_and_click("btn_fechar.png", timeout=10)
         time.sleep(2)
     else:
-        print(f"  ✗ Unexpected state at step 9/10: {state}")
-        sys.exit(1)
+        print(f"  [RETRY] Unexpected state at step 9/10: {state} - retrying...")
+        logger.warning(f"Unexpected state at step 9/10: {state} - query may not have completed")
+        # Don't exit - let the main loop retry
 
 def get_todays_file(prefix):
     today = datetime.datetime.now().strftime("%Y%m%d")
