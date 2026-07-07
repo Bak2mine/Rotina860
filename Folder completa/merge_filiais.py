@@ -154,69 +154,113 @@ def run(SAVE_FOLDER, filial_prefix="TODAS FILIAIS"):
 # RUN BP — Base Produtos
 # ============================================================
 def run_bp(SAVE_FOLDER):
-    MASTER_FILE = get_master_file(SAVE_FOLDER)
-    wb = openpyxl.load_workbook(MASTER_FILE)
+    try:
+        logger.info(f"Starting BP merge for SAVE_FOLDER: {SAVE_FOLDER}")
+        print(f"\n[MERGE] Starting Base Produtos merge...")
 
-    BASE_SHEET = "Base Produtos"
-    if BASE_SHEET not in wb.sheetnames:
-        print(f"  ✗ Sheet '{BASE_SHEET}' not found")
-        print(f"  Available sheets: {wb.sheetnames}")
+        MASTER_FILE = get_master_file(SAVE_FOLDER)
+        logger.info(f"Master file: {MASTER_FILE}")
+
+        wb = openpyxl.load_workbook(MASTER_FILE)
+        logger.info(f"Workbook loaded. Sheets: {wb.sheetnames}")
+
+        BASE_SHEET = "Base Produtos"
+        if BASE_SHEET not in wb.sheetnames:
+            logger.error(f"Sheet '{BASE_SHEET}' not found. Available: {wb.sheetnames}")
+            print(f"  ✗ Sheet '{BASE_SHEET}' not found")
+            print(f"  Available sheets: {wb.sheetnames}")
+            sys.exit(1)
+
+        print("Finding Base Produtos file...")
+        logger.info("Looking for BASE PRODUTOS export...")
+        base_file = get_latest_file(SAVE_FOLDER, "BASE PRODUTOS")
+        logger.info(f"Found file: {base_file}")
+
+        df_base = pd.read_excel(base_file)
+        logger.info(f"Read {len(df_base)} rows from BASE PRODUTOS")
+
+        ws4 = wb[BASE_SHEET]
+        # Clear only data columns B-E from row 11 onwards, keep F/G/H formulas intact
+        print("Clearing previous data from Base Produtos...")
+        logger.info("Clearing Base Produtos data...")
+        for row in ws4.iter_rows(min_row=11, max_row=ws4.max_row, min_col=2, max_col=5):
+            for cell in row:
+                cell.value = None
+
+        print("Writing Base Produtos data...")
+        logger.info("Writing Base Produtos data...")
+        for row_idx, row in enumerate(df_base.itertuples(index=False), start=11):
+            ws4.cell(row=row_idx, column=2, value=row.CODPROD).border = border
+            ws4.cell(row=row_idx, column=3, value=row.DESCRICAO).border = border
+            ws4.cell(row=row_idx, column=4, value=row.CUSTOREP).border = border
+            ws4.cell(row=row_idx, column=5, value=row.DTULTALTCUSTOREP).border = border
+
+        ws4.column_dimensions['E'].width = 18
+
+        logger.info(f"Saving workbook to {MASTER_FILE}...")
+        wb.save(MASTER_FILE)
+        logger.info("[DONE] BP merge completed successfully")
+        print(f"  [DONE] Base Produtos updated with {len(df_base)} rows")
+        print(f"\n[DONE] Master file updated: {MASTER_FILE}")
+
+    except Exception as e:
+        logger.error(f"ERROR in run_bp(): {str(e)}\n{traceback.format_exc()}")
+        print(f"\n[ERROR] ERROR during BP merge: {str(e)}")
+        print(traceback.format_exc())
         sys.exit(1)
-
-    print("Finding Base Produtos file...")
-    base_file = get_latest_file(SAVE_FOLDER, "BASE PRODUTOS")
-    df_base = pd.read_excel(base_file)
-
-    ws4 = wb[BASE_SHEET]
-   # Clear only data columns B-E from row 11 onwards, keep F/G/H formulas intact
-    print("Clearing previous data from Base Produtos...")
-    for row in ws4.iter_rows(min_row=11, max_row=ws4.max_row, min_col=2, max_col=5):
-        for cell in row:
-            cell.value = None
-
-    print("Writing Base Produtos data...")
-    for row_idx, row in enumerate(df_base.itertuples(index=False), start=11):
-        ws4.cell(row=row_idx, column=2, value=row.CODPROD).border = border
-        ws4.cell(row=row_idx, column=3, value=row.DESCRICAO).border = border
-        ws4.cell(row=row_idx, column=4, value=row.CUSTOREP).border = border
-        ws4.cell(row=row_idx, column=5, value=row.DTULTALTCUSTOREP).border = border
-
-    ws4.column_dimensions['E'].width = 18
-
-    wb.save(MASTER_FILE)
-    print(f"  ✓ Base Produtos updated with {len(df_base)} rows")
-    print(f"\n✅ Done! Master file updated: {MASTER_FILE}")
 
 # ============================================================
 # RUN PEDIDOS — Pedidos Compra
 # ============================================================
 def run_pedidos(SAVE_FOLDER):
-    MASTER_FILE = get_master_file(SAVE_FOLDER)
-    wb = openpyxl.load_workbook(MASTER_FILE)
+    try:
+        logger.info(f"Starting PEDIDOS merge for SAVE_FOLDER: {SAVE_FOLDER}")
+        print(f"\n[MERGE] Starting Pedidos Compra merge...")
 
-    PEDIDOS_SHEET = "Pedidos Compra"
-    if PEDIDOS_SHEET not in wb.sheetnames:
-        print(f"  ✗ Sheet '{PEDIDOS_SHEET}' not found")
-        print(f"  Available sheets: {wb.sheetnames}")
+        MASTER_FILE = get_master_file(SAVE_FOLDER)
+        logger.info(f"Master file: {MASTER_FILE}")
+
+        wb = openpyxl.load_workbook(MASTER_FILE)
+        logger.info(f"Workbook loaded. Sheets: {wb.sheetnames}")
+
+        PEDIDOS_SHEET = "Pedidos Compra"
+        if PEDIDOS_SHEET not in wb.sheetnames:
+            logger.error(f"Sheet '{PEDIDOS_SHEET}' not found. Available: {wb.sheetnames}")
+            print(f"  ✗ Sheet '{PEDIDOS_SHEET}' not found")
+            print(f"  Available sheets: {wb.sheetnames}")
+            sys.exit(1)
+
+        print("Finding Pedidos Compra file...")
+        logger.info("Looking for PEDIDO COMPRAS export...")
+        pedidos_file = get_latest_file(SAVE_FOLDER, "PEDIDO COMPRAS")
+        logger.info(f"Found file: {pedidos_file}")
+
+        df_pedidos = pd.read_excel(pedidos_file)
+        logger.info(f"Read {len(df_pedidos)} rows from PEDIDO COMPRAS")
+
+        ws3 = wb[PEDIDOS_SHEET]
+        print("Clearing previous data from Pedidos Compra...")
+        logger.info("Clearing Pedidos Compra data...")
+        ws3.delete_rows(5, ws3.max_row)
+
+        print("Writing Pedidos Compra data...")
+        logger.info("Writing Pedidos Compra data...")
+        for row_idx, row in enumerate(df_pedidos.itertuples(index=False), start=5):
+            ws3.cell(row=row_idx, column=2, value=row.CODPROD).border = border
+            ws3.cell(row=row_idx, column=3, value=row.DESCRICAO).border = border
+            ws3.cell(row=row_idx, column=4, value=row.QTPEDIDA).border = border
+            ws3.cell(row=row_idx, column=5, value=row.CODFILIAL).border = border
+            ws3.cell(row=row_idx, column=6, value=row.DTULTPEDCOMPRA).border = border
+            ws3.cell(row=row_idx, column=7, value=row.DTULTALTCOM).border = border
+
+        logger.info(f"Saving workbook to {MASTER_FILE}...")
+        wb.save(MASTER_FILE)
+        logger.info("[DONE] PEDIDOS merge completed successfully")
+        print(f"  [DONE] Pedidos Compra updated with {len(df_pedidos)} rows")
+        print(f"\n[DONE] Master file updated: {MASTER_FILE}")
+
+    except Exception as e:
+        logger.error(f"ERROR in run_pedidos(): {str(e)}\n{traceback.format_exc()}")
+        print(f"\n[ERROR] ERROR during PEDIDOS merge: {str(e)}")
+        print(traceback.format_exc())
         sys.exit(1)
-
-    print("Finding Pedidos Compra file...")
-    pedidos_file = get_latest_file(SAVE_FOLDER, "PEDIDO COMPRAS")
-    df_pedidos = pd.read_excel(pedidos_file)
-
-    ws3 = wb[PEDIDOS_SHEET]
-    print("Clearing previous data from Pedidos Compra...")
-    ws3.delete_rows(5, ws3.max_row)
-
-    print("Writing Pedidos Compra data...")
-    for row_idx, row in enumerate(df_pedidos.itertuples(index=False), start=5):
-        ws3.cell(row=row_idx, column=2, value=row.CODPROD).border = border
-        ws3.cell(row=row_idx, column=3, value=row.DESCRICAO).border = border
-        ws3.cell(row=row_idx, column=4, value=row.QTPEDIDA).border = border
-        ws3.cell(row=row_idx, column=5, value=row.CODFILIAL).border = border
-        ws3.cell(row=row_idx, column=6, value=row.DTULTPEDCOMPRA).border = border
-        ws3.cell(row=row_idx, column=7, value=row.DTULTALTCOM).border = border
-
-    wb.save(MASTER_FILE)
-    print(f"  ✓ Pedidos Compra updated with {len(df_pedidos)} rows")
-    print(f"\n✅ Done! Master file updated: {MASTER_FILE}")
