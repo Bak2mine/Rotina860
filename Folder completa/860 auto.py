@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # CONFIG
 # ============================================================
 
-# Auto-detect Winthor shortcut on Desktop
+# Auto-detect Winthor - try shortcut first, fallback to AppController
 
 username = os.getlogin()
 pattern = rf"C:\Users\{username}\Desktop\*.winthor.cloudtotvs.com.br.lnk"
@@ -44,8 +44,16 @@ if matches:
     WINTHOR_LNK = matches[0]
     print(f"  ✓ Found Winthor shortcut: {WINTHOR_LNK}")
 else:
-    print("  ✗ Winthor shortcut not found on Desktop")
-    sys.exit(1)
+    # Fallback to AppController.exe if shortcut not found
+    app_controller = r"C:\Program Files (x86)\GraphOn\AppController\AppController.exe"
+    if os.path.exists(app_controller):
+        WINTHOR_LNK = app_controller
+        print(f"  ✓ Found AppController: {WINTHOR_LNK}")
+    else:
+        print("  ✗ Winthor shortcut not found on Desktop")
+        print("  ✗ AppController.exe not found at expected location")
+        print(f"  Checked: {app_controller}")
+        sys.exit(1)
 
 # Password input at startup
 WINTHOR_PASSWORD = input("Senha: ").strip()
