@@ -23,12 +23,22 @@ def get_master_file(SAVE_FOLDER):
     matches = glob.glob(os.path.join(actual_folder, "RELA*.xlsx"))
     if matches:
         logger.info(f"Found master file: {matches[0]}")
-        print(f"  ✓ Master file found: {matches[0]}")
+        print(f"  [FOUND] Master file found: {matches[0]}")
         return matches[0]
 
-    logger.error(f"Master file not found in {actual_folder}")
-    print(f"  ✗ Master file not found in {actual_folder}")
-    sys.exit(1)
+    # Master file not found - create it
+    logger.info(f"Master file not found in {actual_folder}, creating new one...")
+    print(f"  [CREATE] Master file not found, creating new one...")
+
+    try:
+        from create_master_file import create_master_file
+        master_path = os.path.join(actual_folder, "RELACAO PRODUTOS.xlsx")
+        create_master_file(master_path)
+        return master_path
+    except Exception as e:
+        logger.error(f"Failed to create master file: {e}")
+        print(f"  [ERROR] Failed to create master file: {e}")
+        sys.exit(1)
 
 def get_latest_file(SAVE_FOLDER, prefix):
     today = datetime.datetime.now().strftime("%Y%m%d")
