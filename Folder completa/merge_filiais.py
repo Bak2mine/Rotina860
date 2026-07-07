@@ -16,78 +16,56 @@ thin = Side(style='thin')
 border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
 def get_master_file(SAVE_FOLDER):
-    logger.info(f"Looking for master file in: {SAVE_FOLDER}")
+    # Convert V: to C: if needed (V: is mapped to C:)
+    actual_folder = SAVE_FOLDER.replace("V:", "C:")
+    logger.info(f"Looking for master file in: {actual_folder}")
 
-    # Try original path first
-    matches = glob.glob(os.path.join(SAVE_FOLDER, "RELA*.xlsx"))
+    matches = glob.glob(os.path.join(actual_folder, "RELA*.xlsx"))
     if matches:
         logger.info(f"Found master file: {matches[0]}")
         print(f"  ✓ Master file found: {matches[0]}")
         return matches[0]
 
-    # Try alternate drives if original fails
-    path_only = os.path.splitdrive(SAVE_FOLDER)[1]
-    for drive in ["V:", "C:"]:
-        folder = drive + path_only
-        logger.info(f"Trying: {folder}")
-        matches = glob.glob(os.path.join(folder, "RELA*.xlsx"))
-        if matches:
-            logger.info(f"Found master file: {matches[0]}")
-            print(f"  ✓ Master file found: {matches[0]}")
-            return matches[0]
-
-    logger.error(f"Master file not found in {SAVE_FOLDER} or alternate drives")
-    print("  ✗ Master file not found")
+    logger.error(f"Master file not found in {actual_folder}")
+    print(f"  ✗ Master file not found in {actual_folder}")
     sys.exit(1)
 
 def get_latest_file(SAVE_FOLDER, prefix):
     today = datetime.datetime.now().strftime("%Y%m%d")
+
+    # Convert V: to C: if needed (V: is mapped to C:)
+    actual_folder = SAVE_FOLDER.replace("V:", "C:")
+
     logger.info(f"Looking for {prefix} file from today ({today})")
-    logger.info(f"SAVE_FOLDER: {SAVE_FOLDER}")
+    logger.info(f"Search folder: {actual_folder}")
 
-    # List of possible folders to search
-    search_folders = [
-        SAVE_FOLDER,
-        r"C:\Users\andre\Desktop\Zeon\Folder completa",
-    ]
+    if not os.path.exists(actual_folder):
+        logger.error(f"Folder does not exist: {actual_folder}")
+        print(f"  ✗ Folder not found: {actual_folder}")
+        sys.exit(1)
 
-    # Add V: and C: variants
-    path_only = os.path.splitdrive(SAVE_FOLDER)[1]
-    for drive in ["V:", "C:"]:
-        folder = drive + path_only
-        search_folders.append(folder)
+    pattern = os.path.join(actual_folder, f"{prefix}_{today}_*.xls")
+    logger.info(f"Pattern: {pattern}")
+    files = glob.glob(pattern)
 
-    # Search all possible folders
-    for folder in search_folders:
-        if not os.path.exists(folder):
-            logger.info(f"Folder does not exist: {folder}")
-            continue
+    if files:
+        latest = max(files, key=os.path.getmtime)
+        logger.info(f"Found: {latest}")
+        print(f"  ✓ Found: {os.path.basename(latest)}")
+        return latest
 
-        logger.info(f"Searching in: {folder}")
-        pattern = os.path.join(folder, f"{prefix}_{today}_*.xls")
-        logger.info(f"Pattern: {pattern}")
-        files = glob.glob(pattern)
-
-        if files:
-            latest = max(files, key=os.path.getmtime)
-            logger.info(f"Found: {latest}")
-            print(f"  ✓ Found: {os.path.basename(latest)}")
-            return latest
-
-    # If not found with today's date, show what files exist
+    # If not found, show what files do exist
     logger.error(f"No file found for {prefix} on {today}")
-    print(f"  ✗ No file found for {prefix}")
+    print(f"  ✗ No file found for {prefix} on {today}")
 
-    # Try to show what files do exist
-    for folder in search_folders:
-        if os.path.exists(folder):
-            logger.info(f"Files in {folder}:")
-            try:
-                files = glob.glob(os.path.join(folder, f"{prefix}_*.xls"))
-                for f in files:
-                    logger.info(f"  - {f}")
-            except:
-                pass
+    logger.info(f"Files in {actual_folder}:")
+    try:
+        all_files = glob.glob(os.path.join(actual_folder, f"{prefix}_*.xls"))
+        for f in all_files:
+            logger.info(f"  - {os.path.basename(f)}")
+            print(f"  - {os.path.basename(f)}")
+    except Exception as e:
+        logger.error(f"Error listing files: {e}")
 
     sys.exit(1)
 
