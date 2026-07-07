@@ -393,25 +393,37 @@ try:
                 logger.info(f"Running query: {sql_key}")
                 run_query_and_export(sql_key)
 
-            # If choice was "f", run the merge script automatically
+            # Run merge based on choice
+            logger.info(f"Starting merge for choice: {choice}")
+            import merge_filiais
+
             if choice == "f":
                 print("\nMerging all filiais into master file...")
                 logger.info("Merging all filiais into master file...")
-                import merge_filiais
+                merge_filiais.run(SAVE_FOLDER)
+            elif choice == "f1":
+                print("\nMerging Filial 1 into master file...")
+                logger.info("Merging Filial 1 into master file...")
+                merge_filiais.run(SAVE_FOLDER)
+            elif choice == "f2":
+                print("\nMerging Filial 2 into master file...")
+                logger.info("Merging Filial 2 into master file...")
+                merge_filiais.run(SAVE_FOLDER)
+            elif choice == "f5":
+                print("\nMerging Filial 5 into master file...")
+                logger.info("Merging Filial 5 into master file...")
                 merge_filiais.run(SAVE_FOLDER)
             elif choice == "bp":
                 print("\nMerging Base Produtos into master file...")
                 logger.info("Merging Base Produtos into master file...")
-                import merge_filiais
                 merge_filiais.run_bp(SAVE_FOLDER)
             elif choice == "0":
                 print("\nMerging Pedidos Compra into master file...")
                 logger.info("Merging Pedidos Compra into master file...")
-                import merge_filiais
                 merge_filiais.run_pedidos(SAVE_FOLDER)
 
-            print(f"\n✅ All done!")
-            logger.info("✅ Rotina 860 completed successfully!")
+            print("\n[DONE] All done!")
+            logger.info("[DONE] Rotina 860 completed successfully!")
             print("\nPress any key to exit...")
             input()
             break

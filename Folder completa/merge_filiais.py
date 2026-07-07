@@ -16,27 +16,58 @@ thin = Side(style='thin')
 border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
 def get_master_file(SAVE_FOLDER):
+    logger.info(f"Looking for master file in: {SAVE_FOLDER}")
+
+    # Try original path first
+    matches = glob.glob(os.path.join(SAVE_FOLDER, "RELA*.xlsx"))
+    if matches:
+        logger.info(f"Found master file: {matches[0]}")
+        print(f"  ✓ Master file found: {matches[0]}")
+        return matches[0]
+
+    # Try alternate drives if original fails
     path_only = os.path.splitdrive(SAVE_FOLDER)[1]
     for drive in ["V:", "C:"]:
         folder = drive + path_only
+        logger.info(f"Trying: {folder}")
         matches = glob.glob(os.path.join(folder, "RELA*.xlsx"))
         if matches:
+            logger.info(f"Found master file: {matches[0]}")
             print(f"  ✓ Master file found: {matches[0]}")
             return matches[0]
-    print("  ✗ Master file not found on V: or C:")
+
+    logger.error(f"Master file not found in {SAVE_FOLDER} or alternate drives")
+    print("  ✗ Master file not found")
     sys.exit(1)
 
 def get_latest_file(SAVE_FOLDER, prefix):
     today = datetime.datetime.now().strftime("%Y%m%d")
+    logger.info(f"Looking for {prefix} file from today ({today}) in: {SAVE_FOLDER}")
+
+    # Try original path first
+    pattern = os.path.join(SAVE_FOLDER, f"{prefix}_{today}_*.xls")
+    logger.info(f"Pattern: {pattern}")
+    files = glob.glob(pattern)
+    if files:
+        latest = max(files, key=os.path.getmtime)
+        logger.info(f"Found: {latest}")
+        print(f"  ✓ Found: {os.path.basename(latest)}")
+        return latest
+
+    # Try alternate drives
     path_only = os.path.splitdrive(SAVE_FOLDER)[1]
     for drive in ["V:", "C:"]:
         folder = drive + path_only
         pattern = os.path.join(folder, f"{prefix}_{today}_*.xls")
+        logger.info(f"Trying: {pattern}")
         files = glob.glob(pattern)
         if files:
             latest = max(files, key=os.path.getmtime)
+            logger.info(f"Found: {latest}")
             print(f"  ✓ Found: {os.path.basename(latest)}")
             return latest
+
+    logger.error(f"No file found for {prefix} on {today}")
     print(f"  ✗ No file found for {prefix}")
     sys.exit(1)
 
