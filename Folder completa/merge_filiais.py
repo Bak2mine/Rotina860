@@ -139,7 +139,7 @@ def run(SAVE_FOLDER, filial_prefix="TODAS FILIAIS"):
 
         logger.info(f"Saving workbook to {MASTER_FILE}...")
         wb.save(MASTER_FILE)
-        logger.info("✅ Merge completed successfully")
+        logger.info("[DONE] Merge completed successfully")
         print(f"  ✓ Filial 1+2+5 updated with {len(df_combined)} rows")
         print(f"  ✓ Qtd. Pedida+Reservada updated with {len(df_pivot)} rows")
         print(f"\n✅ Done! Master file updated: {MASTER_FILE}")
