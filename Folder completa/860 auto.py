@@ -407,14 +407,34 @@ try:
             time.sleep(10)
             continue
 
-        # STEP 4: Type password and click Entrar
+        # STEP 4: Type username and password and click Entrar
         if state == "login":
             print("Step 4: Logging in...")
             logger.info("Step 4: Logging in...")
             time.sleep(4)
+
+            # Clear and fill username field
+            print("  - Clearing username field...")
+            pyautogui.hotkey("shift", "tab")  # Move to username field
+            time.sleep(0.5)
+            pyautogui.hotkey("ctrl", "a")  # Select all
+            time.sleep(0.2)
+            pyperclip.copy(WINTHOR_USERNAME)
+            pyautogui.hotkey("ctrl", "v")  # Paste username
+            time.sleep(0.5)
+
+            # Move to password field and fill it
+            print("  - Filling password field...")
+            pyautogui.press("tab")  # Move to password field
+            time.sleep(0.2)
+            pyautogui.hotkey("ctrl", "a")  # Select all
+            time.sleep(0.2)
             pyperclip.copy(WINTHOR_PASSWORD)
-            pyautogui.hotkey("ctrl", "v")
+            pyautogui.hotkey("ctrl", "v")  # Paste password
             time.sleep(0.3)
+
+            # Press Enter to login
+            print("  - Submitting login...")
             pyautogui.press("enter")
             time.sleep(12)
             continue
