@@ -6,3 +6,4 @@ pygetwindow
 pywin32
 pandas
 openpyxl
+keyring

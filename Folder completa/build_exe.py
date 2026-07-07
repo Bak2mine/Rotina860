@@ -23,6 +23,7 @@ PyInstaller.__main__.run([
     "--hidden-import=pygetwindow",
     "--hidden-import=win32gui",
     "--hidden-import=win32con",
+    "--hidden-import=keyring",
 ])
 
 print("\n✅ Build complete! Executable created in 'dist' folder")

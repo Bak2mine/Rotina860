@@ -12,6 +12,7 @@ import glob
 import logging
 import traceback
 import getpass
+import keyring
 
 #pip install -r requirements.txt
 
@@ -44,14 +45,36 @@ else:
     print(f"  ✗ AppController.exe not found at: {WINTHOR_LNK}")
     sys.exit(1)
 
-# Get current Windows username
-import getpass
-current_user = getpass.getuser()
-print(f"  ✓ Logged in as: {current_user}")
+# Get credentials from Windows Credential Manager (keyring)
+CREDENTIAL_SERVICE = "Rotina860-Winthor"
 
-# Password input at startup (hidden from view)
-print("\n  Senha (will not be displayed): ", end='', flush=True)
-WINTHOR_PASSWORD = getpass.getpass("")
+try:
+    current_user = getpass.getuser()
+
+    # Try to get password from credential manager
+    WINTHOR_PASSWORD = keyring.get_password(CREDENTIAL_SERVICE, current_user)
+
+    if WINTHOR_PASSWORD:
+        print(f"  ✓ Found stored credentials for: {current_user}")
+    else:
+        # No stored credentials - prompt user to save them
+        print(f"\n  No stored credentials found for {current_user}")
+        print("  Enter your Winthor password to save it securely:")
+        print("  Senha (will not be displayed): ", end='', flush=True)
+        WINTHOR_PASSWORD = getpass.getpass("")
+
+        # Save to credential manager for future use
+        try:
+            keyring.set_password(CREDENTIAL_SERVICE, current_user, WINTHOR_PASSWORD)
+            print("  ✓ Password saved securely in Windows Credential Manager")
+        except Exception as e:
+            logger.warning(f"Could not save password to credential manager: {e}")
+            print("  ⚠ Password will not be saved (credential manager error)")
+
+except Exception as e:
+    logger.error(f"Credential manager error: {e}")
+    print(f"  ✗ Error accessing credential manager: {e}")
+    sys.exit(1)
 
 # Save folder mirrors script location but on V: drive
 if getattr(sys, 'frozen', False):
