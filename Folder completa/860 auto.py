@@ -48,17 +48,18 @@ WINTHOR_PASSWORD = input("Senha: ").strip()
 
 # Save folder mirrors script location but on V: drive
 if getattr(sys, 'frozen', False):
-    # Running as .exe - images are in temp folder with executable
+    # Running as .exe - get actual exe location for file operations
+    # Images are in temp folder, but we want to save files where the exe is
     IMAGES = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
-    # Use the original script location for file paths (not the temp folder)
-    script_path = r"C:\Users\andre\Desktop\Zeon\Folder completa"
+    script_path = os.path.dirname(sys.executable)  # Directory where .exe is located
 else:
-    # Running as script
-    IMAGES = os.path.dirname(os.path.abspath(__file__))
-    script_path = IMAGES
+    # Running as script - use script directory
+    script_path = os.path.dirname(os.path.abspath(__file__))
+    IMAGES = script_path
 
+# Map V: to C: (V: is mapped to C: drive)
 path_without_drive = os.path.splitdrive(script_path)[1]
-SAVE_FOLDER = "V:" + path_without_drive
+SAVE_FOLDER = "C:" + path_without_drive  # Use C: directly instead of V:
 
 # ============================================================
 # CONFIDENCE LEVELS PER IMAGE
@@ -102,10 +103,12 @@ FILE_NAMES = {
 print("Qual SQL?")
 for key in SQL_QUERIES:
     print(f"  {key}: {FILE_NAMES[key]}")
+print("  all: RUN ALL QUERIES (bp, 0, f, bp)")
 
-choice = input("Escolhas (bp, 0, f5, f2, f1, f): ").strip()
+choice = input("Escolhas (bp, 0, f5, f2, f1, f, all): ").strip()
 
-if choice not in SQL_QUERIES:
+valid_choices = list(SQL_QUERIES.keys()) + ["all"]
+if choice not in valid_choices:
     print("Invalido")
     sys.exit(1)
 
@@ -288,7 +291,11 @@ def get_todays_file(prefix):
             return latest
     return None
 
-if choice == "f":
+if choice == "all":
+    # Run all queries: bp, 0, f
+    run_sequence = ["bp", "0", "f"]
+    print("  Running all queries: bp, 0, f")
+elif choice == "f":
     existing = get_todays_file(FILE_NAMES["f"])
     if existing:
         print(f"  Skipping f — already exported today")
@@ -398,7 +405,13 @@ try:
             logger.info(f"Starting merge for choice: {choice}")
             import merge_filiais
 
-            if choice == "f":
+            if choice == "all":
+                print("\nMerging all queries into master file...")
+                logger.info("Merging all queries: bp, 0, f...")
+                merge_filiais.run_bp(SAVE_FOLDER)
+                merge_filiais.run_pedidos(SAVE_FOLDER)
+                merge_filiais.run(SAVE_FOLDER, "TODAS FILIAIS")
+            elif choice == "f":
                 print("\nMerging all filiais into master file...")
                 logger.info("Merging all filiais into master file...")
                 merge_filiais.run(SAVE_FOLDER, "TODAS FILIAIS")
