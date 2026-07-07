@@ -49,27 +49,34 @@ else:
 CREDENTIAL_SERVICE = "Rotina860-Winthor"
 
 try:
-    current_user = getpass.getuser()
+    windows_user = getpass.getuser()
 
-    # Try to get password from credential manager
-    WINTHOR_PASSWORD = keyring.get_password(CREDENTIAL_SERVICE, current_user)
+    # Try to get stored Winthor username for this Windows user
+    WINTHOR_USERNAME = keyring.get_password(f"{CREDENTIAL_SERVICE}-USERNAME", windows_user)
 
-    if WINTHOR_PASSWORD:
-        print(f"  ✓ Found stored credentials for: {current_user}")
+    if WINTHOR_USERNAME:
+        print(f"  ✓ Found stored Winthor username: {WINTHOR_USERNAME}")
+        # Get password for this Winthor username
+        WINTHOR_PASSWORD = keyring.get_password(CREDENTIAL_SERVICE, WINTHOR_USERNAME)
+        if not WINTHOR_PASSWORD:
+            raise Exception(f"Password not found for {WINTHOR_USERNAME}")
     else:
-        # No stored credentials - prompt user to save them
-        print(f"\n  No stored credentials found for {current_user}")
-        print("  Enter your Winthor password to save it securely:")
-        print("  Senha (will not be displayed): ", end='', flush=True)
+        # No stored credentials - prompt user
+        print(f"\n  No stored Winthor credentials found for Windows user: {windows_user}")
+        print("  Enter your Winthor username: ", end='', flush=True)
+        WINTHOR_USERNAME = input("").strip()
+
+        print("  Enter your Winthor password (will not be displayed): ", end='', flush=True)
         WINTHOR_PASSWORD = getpass.getpass("")
 
         # Save to credential manager for future use
         try:
-            keyring.set_password(CREDENTIAL_SERVICE, current_user, WINTHOR_PASSWORD)
-            print("  ✓ Password saved securely in Windows Credential Manager")
+            keyring.set_password(f"{CREDENTIAL_SERVICE}-USERNAME", windows_user, WINTHOR_USERNAME)
+            keyring.set_password(CREDENTIAL_SERVICE, WINTHOR_USERNAME, WINTHOR_PASSWORD)
+            print("  ✓ Credentials saved securely in Windows Credential Manager")
         except Exception as e:
-            logger.warning(f"Could not save password to credential manager: {e}")
-            print("  ⚠ Password will not be saved (credential manager error)")
+            logger.warning(f"Could not save credentials to credential manager: {e}")
+            print("  ⚠ Credentials will not be saved (credential manager error)")
 
 except Exception as e:
     logger.error(f"Credential manager error: {e}")
